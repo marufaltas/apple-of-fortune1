@@ -19,25 +19,35 @@ export function App() {
 	if (!isLoggedIn) {
 		return <LoginScreen onLoginSuccess={() => setIsLoggedIn(true)} />;
 	}
-	if(!localStorage.getItem("money")){
-		localStorage.setItem("money","1000");
+	// Ensure a sensible default balance. If no value exists or it's "0", set to "1000" once.
+	try {
+		const stored = localStorage.getItem("money");
+		// treat missing or any numeric-zero ("0", "0.00", 0) as empty and set default
+		const num = Number(String(stored || '').replace(/[^0-9.-]+/g, ''));
+		if (stored === null || stored === undefined || Number.isNaN(num) || num === 0) {
+			localStorage.setItem("money", "1000");
+		}
+	} catch (e) {
+		// ignore (e.g. SSR or private mode)
 	}
-	const [money, setMoney] = useState(localStorage.getItem("money") || "1000");
+	const [money, setMoney] = useState(() => {
+		try { return localStorage.getItem("money") || "1000" } catch(e){ return "1000" }
+	});
 	// const money = localStorage.setItem("money",money.toString())
 	const [bidAmount, setBidAmount] = useState(0);
 	const [profit, setProfit] = useState(0)
 	const [toggle, setToggle] = useState(false)
 	const [profitToggle,setProfitToggle] = useState(false)
 
+	// Keep localStorage in sync whenever `money` changes.
 	useEffect(()=>{
-		localStorage.setItem("money",money.toString())
-		
-	},[])
+		try { localStorage.setItem("money", String(money)); } catch(e){}
+	},[money])
 
 	const handleMoneyChange = (amount)=> {
-		setMoney(amount)
-		localStorage.setItem("money",amount.toString())
-		
+		const s = String(amount);
+		setMoney(s)
+		try { localStorage.setItem("money", s); } catch(e){}
 		console.log(localStorage.getItem("money"))
 	}
 
@@ -48,12 +58,10 @@ export function App() {
 
 	const handleBidAmount = (amt)=>{
 		setBidAmount(amt)
-		const Remaining = parseFloat(money) - parseFloat(amt)
-		
-		setMoney(Remaining.toString())
-		localStorage.setItem("money",money)
-		// const remaining = localStorage.getItem("money")
-
+		const Remaining = parseFloat(String(money || "0")) - parseFloat(String(amt || "0"))
+		const remStr = String(Number.isNaN(Remaining) ? 0 : Remaining.toFixed(2))
+		setMoney(remStr)
+		try { localStorage.setItem("money", remStr); } catch(e){}
 	}
 
 	const handleProfit = (amt)=>{
@@ -90,7 +98,7 @@ export function App() {
 			
 			 <h3 className="custom-banner">! جرب حظك! تذوق تفاح الثلج الأبيض</h3>
 			<img className="rounded-4 mt-4 me-0 " width = "150px" src={apple} />
-			<Bid handleBidAmount = {handleBidAmount} bidAmount = {bidAmount} handleMoneyChange= {handleMoneyChange} handleToggle={handleToggle} ></Bid>
+			<Bid money={money} handleBidAmount = {handleBidAmount} bidAmount = {bidAmount} handleMoneyChange= {handleMoneyChange} handleToggle={handleToggle} ></Bid>
 			</div>}
 		</div>
 	);
