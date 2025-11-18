@@ -20,9 +20,9 @@ export function App() {
 		return <LoginScreen onLoginSuccess={() => setIsLoggedIn(true)} />;
 	}
 	if(!localStorage.getItem("money")){
-		localStorage.setItem("money","0");
+		localStorage.setItem("money","1000");
 	}
-	const [money, setMoney] = useState(localStorage.getItem("money") || "0");
+	const [money, setMoney] = useState(localStorage.getItem("money") || "1000");
 	// const money = localStorage.setItem("money",money.toString())
 	const [bidAmount, setBidAmount] = useState(0);
 	const [profit, setProfit] = useState(0)
