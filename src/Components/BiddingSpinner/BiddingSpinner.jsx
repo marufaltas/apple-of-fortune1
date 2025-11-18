@@ -1,5 +1,5 @@
 import { useState, useEffect,useRef } from 'preact/hooks';
-import Profit from '../Profit/profit';
+import Profit from '../Profit/Profit';
 import './BiddingSpinner.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
