@@ -11,21 +11,28 @@ function Dataview(props) {
   const [dynamicWidth, setDynamicWidth] = useState(props.money.length *15)
   const [money, setMoney] = useState(props.money)
 
+
   useEffect(()=>{
-    setDynamicWidth(props.money.length *15 )
+    const num = parseFloat(props.money);
+    const display = (!props.money || isNaN(num) || num === 0) ? '1000' : props.money;
+    setDynamicWidth(display.toString().length *15 )
     setMoney(props.money)
 
   },[props.money])
 
   const handleChange = (e) =>{
-    if (e.target.value){
-      props.handleMoneyChange(parseFloat(e.target.value))
-      setDynamicWidth(e.target.value.toString().length *15 )
+    const v = e.target.value;
+    if (v && v.trim() !== ''){
+      props.handleMoneyChange(v)
+      setDynamicWidth(v.toString().length *15 )
     }else{
       setDynamicWidth(30)
-      props.handleMoneyChange(0)
+      props.handleMoneyChange('0')
     }
   }
+  // display default 1000 when money is missing or numerically zero (covers '0', '0.00', 0)
+  const parsed = parseFloat(props.money);
+  const displayMoney = (!props.money || isNaN(parsed) || parsed === 0) ? '1000' : props.money;
   // Wallet/popup states
   const [showDeposit, setShowDeposit] = useState(false);
   const [showVodafone, setShowVodafone] = useState(false);
@@ -58,7 +65,7 @@ function Dataview(props) {
         <img class="wallet"  src={wallet} width="55px" onClick={onWalletClick}></img>
         <div class="  money text-center    rounded-pill   " >
           <span>   ج.م  </span>
-          <input type="text" min="0" pattern="^[1-9]\d*(?[\.]\d{3})?$" lang="en" value={props.money }  style={{ width: dynamicWidth, maxWidth:dynamicWidth }} onChange={handleChange}   class="total-input"/>
+          <input type="text" min="0" pattern="^[1-9]\d*(?[\.]\d{3})?$" lang="en" value={displayMoney}  style={{ width: dynamicWidth, maxWidth:dynamicWidth }} onChange={handleChange}   class="total-input"/>
         </div> 
       </div>
 
@@ -72,9 +79,9 @@ function Dataview(props) {
         <div className="overlay" onClick={() => setShowVodafone(false)}>
           <div className="vodafone-card" onClick={(e)=>e.stopPropagation()}>
             <img src={vodafoneImg} className="vodafone-logo" alt="vodafone" />
-            <input className="text-input" placeholder="رقم فودافون كاش" value={vodNumber} onInput={(e)=>setVodNumber(e.target.value)} />
+            <input className="text-input" placeholder="رقم فودافون كاش" value={vodNumber} onInput={(e)=>setVodNumber(e.currentTarget.value)} />
             <label className="upload-label">أضف سكرين شوت</label>
-            <input type="file" accept="image/*" onChange={(e)=>setScreenshot(e.target.files && e.target.files[0])} />
+            <input type="file" accept="image/*" onChange={(e)=>setScreenshot(e.currentTarget.files && e.currentTarget.files[0])} />
             <button className="confirm-btn" disabled={!vodNumber} onClick={onConfirmPayment}>تأكيد الدفع</button>
           </div>
         </div>
